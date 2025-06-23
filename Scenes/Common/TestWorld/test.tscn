@@ -1,0 +1,39 @@
+[gd_scene load_steps=6 format=3 uid="uid://cuk7ookd4jk56"]
+
+[ext_resource type="PackedScene" uid="uid://d1gnww7kdg2rt" path="res://Source/Entities/Player/player.tscn" id="1_luyrb"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h50l0"]
+albedo_color = Color(0.145098, 1, 1, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_nqg2v"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ubaac"]
+size = Vector3(48.8008, 1, 50.0012)
+
+[sub_resource type="SphereMesh" id="SphereMesh_nqg2v"]
+
+[node name="Test" type="Node3D"]
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+collision_layer = 2
+collision_mask = 3
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D"]
+transform = Transform3D(50, 0, 0, 0, 1, 0, 0, 0, 50, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_h50l0")
+mesh = SubResource("BoxMesh_nqg2v")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.27832, 0, -0.00378418)
+shape = SubResource("BoxShape3D_ubaac")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.02078, 1.88831, 0)
+mesh = SubResource("SphereMesh_nqg2v")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.866025, 0.5, 0, -0.5, -0.866025, 0, 3, 5)
+
+[node name="Player" parent="." instance=ExtResource("1_luyrb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.592922, 0)
+wall_min_slide_angle = 0.436332

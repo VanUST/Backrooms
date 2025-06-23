@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://b8njaxf6huvrf"]
+
+[ext_resource type="Script" uid="uid://bf1kxco47d5f2" path="res://Source/Levels/Level_0/Level_0.gd" id="1_fqrxv"]
+
+[node name="Level_0" type="Node"]
+script = ExtResource("1_fqrxv")
+metadata/_custom_type_script = "uid://djk6jo5n6a4fu"
