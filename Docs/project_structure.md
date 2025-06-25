@@ -94,3 +94,31 @@ Hyperparameters & Variation
 All per-level tweakables live in a single Resource (LevelXXParams.tres), not spread across dozens of scripts.
 
 Inside your level logic you can sample Perlin noise (from NoiseSampler.gd) or random ranges to vary e.g. ceiling height, room sparsity, door placement—driven by those exported params.
+
+I need implement an algorithm that will generate a level proceduraly. The level itsef could be described as a LevelGraph. The LevelGraph should handle generation of LevelNode instances. LevelNode has attributes:
+ type, bbox, child object nodes array to store child objects , and connectors array to store LevelConnector objects. 
+
+LevelConnector object is used to determine 2 regions in 3D space that new LevelNodes could be attached to (Those are 2 regions of same size right next to each other. When new LevelConnector is created, the first region should be inside the node's bbox it is initialized with, and one outside the bbox right next to it). It should probably store its type (box, cylinder e.t.c), associaited bboxes and nodes that are attached to it. One connector can have only two nodes attached to it
+
+The graph generation algorithm goes like this:
+1) Init first Node. It must have at least two connectors.
+2) For each active connector of current Node (The connector is active has only 1 Node attached to it):
+a) Find a bbox in which new node could be spawned while connected to current connector (that means new node should physically contain the bbox of the connector)
+
+To find such a region ind 3D space use this approach:
+The whole level could be split into chunks: 3d boxes of size CHUNK_SIZE. The check for the bbox should only happen for graph inside the current chunk. This can be done via bruteforce check for all the nodes which gives better region, or it could be done by storing the "global" bbox of the current chunk (the bbox that contains all the node's bboxes of graph in the current chunk and extended for newly added nodes (via BBox.extend() method), which is faster as requires check with only one "global" bbox for each new generated node). The new node's bbox should not intercept other nodes in current chunk (or "global" bbox of current chunk depending on method) for more than interception safe margin volume (probably should depend on node type), and the upper bound for size of bbox is MAX_NODE_BBOX_SIZE. We do not check for interceptions with the chunk itself for nodes. Instead, if node generated in two chunks at the same time, just assign it for both of them.
+
+If the found bbox is bigger than MIN_NODE_BBOX_SIZE:
+
+b1) Inside that found bbox generate a node based on set of arguements (will be specified further). That
+c1) Generate connectors for the node
+d1) Include the generated node into current chunk graph and include it into an array of active nodes if it has at least one active connector (not tied to chunk, separate array). 
+e1) Initiate physical generation of LevelNode and its children in a separate thread (not in main thread)
+
+else:
+b2) Generate fallback node. Basically a dead end.
+
+3) For all the ACTIVE nodes that are less than MAX_GENERATION_DISTANCE away from the player (probably should track players world coordinate and make it globally available via making a singleton, this is what I will do), find the closest to the player and make it new current node.
+4) For memory release, consider doing it in chunks. If player is further than MAX_PLAYER_TO_CHUNK_DISTANCE away from some chunk (consider chunk's center), free the graph of this chunk
+4) Repeat step 2.
+

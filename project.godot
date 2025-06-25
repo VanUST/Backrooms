@@ -18,6 +18,7 @@ config/icon="res://Assets/icon.svg"
 
 Log="*res://Source/Core/Logging.gd"
 GB_LevelPicker="*res://Source/Core/LevelPicker.gd"
+GB_PlayerParams="*res://Source/Core/PlayerParams.gd"
 
 [display]
 

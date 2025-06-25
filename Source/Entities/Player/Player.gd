@@ -1,4 +1,5 @@
 extends CharacterBody3D
+class_name Player
 
 @onready var anim: MaleAnimator = $male_asset
 @onready var head_camera: Camera3D = $Camera3D
@@ -37,6 +38,7 @@ var pitch: float = 0.0   # clamped −π/2…π/2
 
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	GB_PlayerParams.player = self
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
