@@ -3,6 +3,8 @@ extends RefCounted
 class_name LevelNodeConnector
 
 # Represents a connection region between two LevelNode instances.
+# Contains information about bboxes of connection regions and references to the nodes that are atteched to the connector.
+
 var connector_regions: Dictionary = {1: null, 2:null}
 
 class ConnectorRegion extends RefCounted:
@@ -15,26 +17,43 @@ class ConnectorRegion extends RefCounted:
 		direction = _direction.normalized()
 		node      = _node
 
-
 func _init(connector_bbox: BBox, direction: Vector3, owner_node: LevelNode) -> void:
 	# create the “side 1” region already tied to owner_node
 	connector_regions[1] = ConnectorRegion.new(connector_bbox, direction, owner_node)
 
+func _compute_unactive_bbox() -> BBox:
+	var occupied_idx    = _compute_active_idx()
+	var region        = connector_regions[occupied_idx]
+	var bbox    = region.bbox
+	var extent  = bbox.end_pos - bbox.start_pos
+	var dir     = -region.direction
+	var shift   = Vector3(dir.x * extent.x,
+						dir.y * extent.y,
+						dir.z * extent.z)
+	return BBox.new(bbox.start_pos + shift,
+					bbox.end_pos   + shift)
+
+func _compute_unactive_idx() -> int:
+	return 2 if connector_regions[1] != null else 1
+
+func _compute_active_idx() -> int:
+	return 1 if connector_regions[1] != null else 2
+
+func _compute_active_direction() -> Vector3:
+	var occupied_idx    =  _compute_active_idx()
+	var region        = connector_regions[occupied_idx]
+	var dir     = -region.direction
+	return dir
+
 # Attach a node to this connector (max 2) Returns BBox of newly added connector region
 func attach_node(new_node: LevelNode) -> BBox:
-	var occupied_idx    = 1 if connector_regions[1] != null else 2
-	var unoccupied_idx  = 2 if connector_regions[1] != null else 1
-	var occ_reg        = connector_regions[occupied_idx]
+	# 1) compute the bbox of the “other side” just as before
+	var unocc_bbox = _compute_unactive_bbox()
+	var unocc_dir = _compute_active_direction()
+	var unoccupied_idx = _compute_unactive_idx()
 
-	# 2) compute the bbox of the “other side” just as before
-	var bbox      = occ_reg.bbox
-	var extent    = bbox.end_pos - bbox.start_pos
-	var unocc_dir = -occ_reg.direction
-	var shift     = Vector3(unocc_dir.x * extent.x,
-						unocc_dir.y * extent.y,
-						unocc_dir.z * extent.z)
-	var unocc_bbox = BBox.new(bbox.start_pos + shift,
-							bbox.end_pos   + shift)
+	# 2) Check if connector bbox is inside new_node bbox. Clamp it to be insied new node bbox
+	unocc_bbox.clamp(new_node.bbox)
 
 	# 3) create region 2 and tie it to our new node
 	var new_region = ConnectorRegion.new(unocc_bbox, unocc_dir, new_node)

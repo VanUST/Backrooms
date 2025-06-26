@@ -1,4 +1,4 @@
-# File: LevelNode.gd
+# res://Source/WorldGenerators/LevelNode.gd
 # A bulding block for LevelGraph. Represents a 3d region in which static 
 # objects will be generated (children objects). Also stores connectors 
 # for new nodes to generate on. Stores connector bboxes that are inside current node
@@ -10,6 +10,11 @@ class_name LevelNode
 var bbox: BBox = BBox.new()
 var connectors: Array = []
 var connector_bboxes: Array = []
+
+# Can be tweaked when assigned to chunk
+var parent_chunks_pos: Array = []
+func assign_parent_chunk(pos:Vector3i)->void: parent_chunks_pos.append(pos)
+func is_border_node()->bool: return true if parent_chunks_pos.size()>1 else false
 
 # There real physical objects live:
 var children_objects: Array = []

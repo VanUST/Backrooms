@@ -58,7 +58,6 @@ func pick_level(index: int) -> void:
 		push_error("LevelPicker: failed to load PackedScene at '%s'" % full_path)
 		return
 
-	# instantiate() instead of instance()
 	current_level_node = scene.instantiate()
 	# Add it to the current scene (or to whatever node makes sense)
 	get_tree().get_current_scene().add_child(current_level_node)

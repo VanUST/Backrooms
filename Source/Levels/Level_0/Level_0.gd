@@ -1,20 +1,23 @@
 # res://Source/Levels/Level_0/Level_0.gd
 extends LevelBase
+class_name  Level_0
 
-# Debug testing
-# func _ready() -> void:
-	# shapes_generator.gen_box(
-	# 	Vector3(3,0,3),
-	# 	Vector3(6,3,6),
-	# 	self,
-	# 	preload("res://Assets/Textures/Walls/Horror_Wall_01-512x512.png")
-	# )
-	# shapes_generator.gen_box(
-	# 	Vector3(7,0,7),
-	# 	Vector3(20,6,20),
-	# 	self,
-	# 	preload("res://Assets/Textures/Walls/Horror_Wall_01-512x512.png")
-	# )
-# Main generation loop
+func _init() -> void:
+	pass
+
+# The main generation method. It should call generation methods for level_graph, pruning for distant chunks and thread physical generation of node
 func _physics_process(delta: float) -> void:
 	pass
+	
+func thread_objects_generation() -> void:
+	pass
+
+func define_node_bbox() -> void:
+	pass
+
+func define_node_conectors():
+	pass
+
+func generate_physical_node():
+	pass
+
