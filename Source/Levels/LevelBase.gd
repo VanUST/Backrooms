@@ -11,8 +11,8 @@ func _init() -> void:
 	)
 
 # The main generation method. It should call generation methods for level_graph, pruning for distant chunks and thread physical generation of node
-func _physics_process(delta: float) -> void:
-	_abstract_method("_physics_process")
+func _process(_delta: float) -> void:
+	_abstract_method("_process")
 	
 func thread_objects_generation() -> void:
 	_abstract_method("thread_objects_generation")

@@ -2,11 +2,13 @@
 extends LevelBase
 class_name  Level_0
 
+var LEVEL_GRAPH: LevelGraph
+
 func _init() -> void:
 	pass
 
 # The main generation method. It should call generation methods for level_graph, pruning for distant chunks and thread physical generation of node
-func _physics_process(delta: float) -> void:
+func _process(delta: float) -> void:
 	pass
 	
 func thread_objects_generation() -> void:

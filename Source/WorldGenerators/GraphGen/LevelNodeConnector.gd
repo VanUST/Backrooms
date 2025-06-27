@@ -42,7 +42,13 @@ func _compute_active_idx() -> int:
 func _compute_active_direction() -> Vector3:
 	var occupied_idx    =  _compute_active_idx()
 	var region        = connector_regions[occupied_idx]
-	var dir     = -region.direction
+	var dir     = -region.direction.normalized()
+	return dir
+
+func _compute_unactive_direction() -> Vector3:
+	var occupied_idx    =  _compute_unactive_idx()
+	var region        = connector_regions[occupied_idx]
+	var dir     = -region.direction.normalized()
 	return dir
 
 # Attach a node to this connector (max 2) Returns BBox of newly added connector region

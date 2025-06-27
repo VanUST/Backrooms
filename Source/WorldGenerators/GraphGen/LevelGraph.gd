@@ -8,8 +8,8 @@ class_name LevelGraph
 
 # Configuration constants
 var CHUNK_SIZE:Vector3 = Vector3(100, 100, 100)
-var MAX_NODE_BBOX_SIZE:Vector3i = Vector3i(50, 50, 50)
-var MIN_NODE_BBOX_SIZE:Vector3i = Vector3i(3, 3, 3)
+var MAX_NODE_BBOX_SIZE:Vector3 = Vector3(50, 50, 50)
+var MIN_NODE_BBOX_SIZE:Vector3 = Vector3(3, 3, 3)
 var MAX_NODE_GENERATION_DISTANCE:int = 200
 var MAX_NODE_RENDERING_DISTANCE:int = 1000
 var SAFE_MARGIN_VOLUME:float = 5
@@ -134,16 +134,49 @@ func generate_on_active_node(current_active_node: LevelNode) -> void:
 
 
 func estimate_available_bbox_for_connector(node: LevelNode,  connector: LevelNodeConnector, _chunks: Dictionary) -> BBox:
-	# 1) Build initial available_bbox as union of all parent‐chunk bboxes
-	var available: BBox = null
-	for chunk_pos in node.parent_chunks_pos:
-		var chunk_bbox : BBox = _chunks[chunk_pos].bbox
-		if available == null:
-			available = BBox.new(chunk_bbox.start_pos, chunk_bbox.end_pos)
-		else:
-			available.extend(chunk_bbox)
+	# 1) Build initial available_bbox as a fixed‐size box around the connector
+	var my_bbox: BBox = connector._compute_unactive_bbox()
+	var dir: Vector3 = connector._compute_unactive_direction().normalized()
+	var size: Vector3 = MAX_NODE_BBOX_SIZE
+	var center: Vector3 = my_bbox.center()
+	var avail_min: Vector3 = Vector3()
+	var avail_max: Vector3 = Vector3()
+	# X axis
+	if dir.x > 0:
+		# connector points +X, so touch max face
+		avail_max.x = my_bbox.max_x()
+		avail_min.x = avail_max.x - size.x
+	elif dir.x < 0:
+		# connector points -X, so touch min face
+		avail_min.x = my_bbox.min_x()
+		avail_max.x = avail_min.x + size.x
+	else:
+		# center on X
+		avail_min.x = center.x - size.x * 0.5
+		avail_max.x = avail_min.x + size.x
+	# Y axis
+	if dir.y > 0:
+		avail_max.y = my_bbox.max_y()
+		avail_min.y = avail_max.y - size.y
+	elif dir.y < 0:
+		avail_min.y = my_bbox.min_y()
+		avail_max.y = avail_min.y + size.y
+	else:
+		avail_min.y = center.y - size.y * 0.5
+		avail_max.y = avail_min.y + size.y
+	# Z axis
+	if dir.z > 0:
+		avail_max.z = my_bbox.max_z()
+		avail_min.z = avail_max.z - size.z
+	elif dir.z < 0:
+		avail_min.z = my_bbox.min_z()
+		avail_max.z = avail_min.z + size.z
+	else:
+		avail_min.z = center.z - size.z * 0.5
+		avail_max.z = avail_min.z + size.z
+
+	var available: BBox = BBox.new(avail_min, avail_max)
 	# 2) Subtract out _other_ active‐connector bboxes
-	var my_bbox = connector._compute_unactive_bbox()
 	for other in node.get_active_connectors():
 		if other == connector:
 			continue
@@ -163,7 +196,9 @@ func estimate_available_bbox_for_connector(node: LevelNode,  connector: LevelNod
 		or available.height() < MIN_NODE_BBOX_SIZE.y \
 		or available.depth() < MIN_NODE_BBOX_SIZE.z:
 			break
+
 	return available
+
 
 # Remove distant chunks by freeing их ноды, но только border-ноды вызывают обновление active_nodes
 func prune_chunks() -> void:
